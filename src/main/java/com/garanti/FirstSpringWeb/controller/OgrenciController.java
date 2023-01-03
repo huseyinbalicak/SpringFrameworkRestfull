@@ -46,7 +46,6 @@ public class OgrenciController {
     @GetMapping(path = "findAllByName", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<Ogrenci>> getByIdQueryParam(@RequestParam(value = "name", required = true) String name)
     {
-        // localhost:9090/FirstSpringWeb/ogretmen/findAllByName?name=a
         return ResponseEntity.ok(this.repo.getAllLike(name));
     }
 
