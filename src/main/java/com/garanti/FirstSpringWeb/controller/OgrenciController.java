@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
+import java.util.List;
 
 @RestController
 @RequestMapping(path = "ogrenci")
@@ -23,18 +23,16 @@ public class OgrenciController {
 
     private OgrenciRepo repo;
 
-    public OgrenciController()
+    public OgrenciController(OgrenciRepo repo)
     {
-        this.repo = new OgrenciRepo();
+
+        this.repo = repo;
     }
 
-
-
     @GetMapping(path = "getAll", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ArrayList<Ogrenci>> getAll()
+    public ResponseEntity<List<Ogrenci>> getAll()
     {
-        // localhost:9090/FirstRestfulService/ogrenci/getAll
-        ArrayList<Ogrenci> res = repo.getAll();
+        List<Ogrenci> res = repo.getAll();
         if (res == null || res.size() == 0)
         {
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
@@ -45,10 +43,16 @@ public class OgrenciController {
         }
     }
 
+    @GetMapping(path = "findAllByName", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<Ogrenci>> getByIdQueryParam(@RequestParam(value = "name", required = true) String name)
+    {
+        // localhost:9090/FirstSpringWeb/ogretmen/findAllByName?name=a
+        return ResponseEntity.ok(this.repo.getAllLike(name));
+    }
+
     @GetMapping(path = "getByIdHeader", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Ogrenci> getByIdHeader(@RequestHeader(name = "id") Integer id)
     {
-        // localhost:9090/FirstRestfulService/ogrenci/getById?id=1
         Ogrenci res = repo.getById(id);
         if (res != null)
         {
@@ -63,7 +67,6 @@ public class OgrenciController {
     @GetMapping(path = "getById", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Ogrenci> getByIdQueryParam(@RequestParam(value = "id", required = true) Integer id)
     {
-        // localhost:9090/FirstRestfulService/ogrenci/getById?id=1
         Ogrenci res = repo.getById(id);
         if (res != null)
         {
@@ -78,8 +81,6 @@ public class OgrenciController {
     @GetMapping(path = "getById/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Ogrenci> getByIdPathParam(@PathVariable(value = "id") Integer id)
     {
-        // localhost:9090/FirstRestfulService/ogrenci/getById/1
-
         Ogrenci res = repo.getById(id);
         if (res != null)
         {
@@ -92,11 +93,9 @@ public class OgrenciController {
     }
 
     @PostMapping(path = "save", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> save(@RequestBody Ogrenci ogrenci)
+    public ResponseEntity<String> save(@RequestBody Ogrenci ogretmen)
     {
-        // localhost:9090/FirstRestfulService/ogrenci/save
-        // {"name":"RestTest", "is_GICIK": true}
-        if (repo.save(ogrenci))
+        if (repo.save(ogretmen))
         {
             return ResponseEntity.status(HttpStatus.CREATED).body("Başarı ile kaydedildi");
         }
@@ -109,7 +108,6 @@ public class OgrenciController {
     @DeleteMapping(path = "deleteById/{id}")
     public ResponseEntity<String> deleteById(@PathVariable(value = "id") Integer id)
     {
-        // localhost:9090/FirstRestfulService/ogrenci/deleteById/1
         if (repo.deleteById(id))
         {
             return ResponseEntity.ok("Başarı ile silindi");
@@ -123,7 +121,7 @@ public class OgrenciController {
     @DeleteMapping(path = "deleteByIdHeader")
     public ResponseEntity<String> deleteByIdHeader(@RequestHeader(value = "id") Integer id)
     {
-        // localhost:9090/FirstRestfulService/ogrenci/deleteById/1
+
         if (repo.deleteById(id))
         {
             return ResponseEntity.ok("Başarı ile silindi");
