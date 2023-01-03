@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
+import java.util.List;
 
 @RestController
 @RequestMapping(path = "konu")
@@ -23,16 +23,15 @@ public class KonuController {
 
     private KonuRepo repo;
 
-    public KonuController()
-    {
-        this.repo = new KonuRepo();
+    public KonuController(KonuRepo repo) {
+        this.repo = repo;
     }
 
+
     @GetMapping(path = "getAll", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ArrayList<Konu>> getAll()
+    public ResponseEntity<List<Konu>> getAll()
     {
-        // localhost:9090/FirstRestfulService/konu/getAll
-        ArrayList<Konu> res = repo.getAll();
+        List<Konu> res = repo.getAll();
         if (res == null || res.size() == 0)
         {
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
@@ -46,7 +45,7 @@ public class KonuController {
     @GetMapping(path = "getByIdHeader", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Konu> getByIdHeader(@RequestHeader(name = "id") Integer id)
     {
-        // localhost:9090/FirstRestfulService/konu/getById?id=1
+
         Konu res = repo.getById(id);
         if (res != null)
         {
@@ -58,26 +57,15 @@ public class KonuController {
         }
     }
 
-    @GetMapping(path = "getById", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Konu> getByIdQueryParam(@RequestParam(value = "id", required = true) Integer id)
+    @GetMapping(path = "findAllByName", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<Konu>> getByIdQueryParam(@RequestParam(value = "name", required = true) String name)
     {
-        // localhost:9090/FirstRestfulService/konu/getById?id=1
-        Konu res = repo.getById(id);
-        if (res != null)
-        {
-            return ResponseEntity.ok(res);
-        }
-        else
-        {
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-        }
+        return ResponseEntity.ok(this.repo.getAllLike(name));
     }
 
     @GetMapping(path = "getById/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Konu> getByIdPathParam(@PathVariable(value = "id") Integer id)
     {
-        // localhost:9090/FirstRestfulService/konu/getById/1
-
         Konu res = repo.getById(id);
         if (res != null)
         {
@@ -92,8 +80,6 @@ public class KonuController {
     @PostMapping(path = "save", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> save(@RequestBody Konu konu)
     {
-        // localhost:9090/FirstRestfulService/konu/save
-        // {"name":"RestTest", "is_GICIK": true}
         if (repo.save(konu))
         {
             return ResponseEntity.status(HttpStatus.CREATED).body("Başarı ile kaydedildi");
@@ -107,7 +93,6 @@ public class KonuController {
     @DeleteMapping(path = "deleteById/{id}")
     public ResponseEntity<String> deleteById(@PathVariable(value = "id") Integer id)
     {
-        // localhost:9090/FirstRestfulService/konu/deleteById/1
         if (repo.deleteById(id))
         {
             return ResponseEntity.ok("Başarı ile silindi");
@@ -121,7 +106,6 @@ public class KonuController {
     @DeleteMapping(path = "deleteByIdHeader")
     public ResponseEntity<String> deleteByIdHeader(@RequestHeader(value = "id") Integer id)
     {
-        // localhost:9090/FirstRestfulService/konu/deleteById/1
         if (repo.deleteById(id))
         {
             return ResponseEntity.ok("Başarı ile silindi");
